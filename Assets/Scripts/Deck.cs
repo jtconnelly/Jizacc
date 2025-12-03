@@ -28,8 +28,18 @@ public class Deck
             this.cards[n] = value;
         }
     }
-    public Deck()
+
+    public int Count
     {
+        get
+        {
+            return this.cards.Count;
+        }
+    }
+
+    private void freshDeck()
+    {
+        this.cards = new List<Card>();
         for (int i = 1; i <= 10; i++)
         {
             cards.Add(new Card("Triangle", i));
@@ -42,6 +52,25 @@ public class Deck
         cards.Add(new Card("Zero", 0));
         cards.Add(new Card("Zero", 0));
         shuffle();
+    }
+
+    public void reset()
+    {
+        freshDeck();
+    }
+    public Card draw()
+    {
+        if (this.cards.Count > 1)
+        {
+            Card card = this.cards[0];
+            this.cards.RemoveAt(0);
+            return card;
+        }
+        return new Card("INVALID", 0);
+    }
+    public Deck()
+    {
+        freshDeck();
     }
 
 }
