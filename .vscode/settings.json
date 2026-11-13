@@ -67,5 +67,10 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
+    "dotnetAcquisitionExtension.sharedExistingDotnetPath": "/home/james/dotnet/dotnet",
+    "terminal.integrated.env.linux": {
+        "DOTNET_ROOT": "/home/james/dotnet",
+        "PATH": "/home/james/dotnet:${env:PATH}"
+    },
     "dotnet.defaultSolution": "Jizacc.slnx"
 }

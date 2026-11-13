@@ -1,76 +1,155 @@
 using System.Collections.Generic;
-
 using UnityEngine;
 
-public class Card
+public static class CardMaterialLoader
 {
-    string suit;
-    int value;
-    public Card(string suit, int val)
+    public static Material LoadMaterial(SabaccSuit suit, int value)
     {
-        this.suit = suit;
-        this.value = val;
+        string materialName;
+        if (suit == SabaccSuit.Zero)
+        {
+            materialName = "Zero";
+        }
+        else
+        {
+            string suitCode;
+            switch (suit)
+            {
+                case SabaccSuit.Circle:
+                    suitCode = "C";
+                    break;
+                case SabaccSuit.Square:
+                    suitCode = "S";
+                    break;
+                case SabaccSuit.Triangle:
+                    suitCode = "T";
+                    break;
+                default:
+                    throw new System.ArgumentOutOfRangeException(nameof(suit), suit, "Unsupported card suit.");
+            }
+
+            materialName = $"{(value > 0 ? "B" : "R")}{suitCode}{Mathf.Abs(value)}";
+        }
+
+        Material material = Resources.Load<Material>(materialName);
+        if (material == null)
+        {
+            throw new System.InvalidOperationException(
+                $"Card material '{materialName}' was not found under Assets/Cards/Materials/Resources.");
+        }
+
+        return material;
+    }
+
+    public static Material LoadMaterial(PazaakSuit suit, int value)
+    {
+        string suitCode;
+        switch (suit)
+        {
+            case PazaakSuit.Red:
+                suitCode = "R";
+                break;
+            case PazaakSuit.Green:
+                suitCode = "G";
+                break;
+            case PazaakSuit.Blue:
+                suitCode = "B";
+                break;
+            case PazaakSuit.Yellow:
+                suitCode = "Y";
+                break;
+            default:
+                throw new System.ArgumentOutOfRangeException(nameof(suit), suit, "Unsupported card suit.");
+        }
+
+        string materialName = $"{(value > 0 ? "B" : "R")}{suitCode}{Mathf.Abs(value)}";
+
+        Material material = Resources.Load<Material>(materialName);
+        if (material == null)
+        {
+            throw new System.InvalidOperationException(
+                $"Card material '{materialName}' was not found under Assets/Cards/Materials/Resources.");
+        }
+
+        return material;
     }
 }
-public class Deck
+public static class ListExtensions
 {
-    List<Card> cards;
-
-    public void shuffle()
+    public static List<T> Shuffle<T>(this List<T> list)
     {
-        int n = this.cards.Count;
+        int n = list.Count;
         while (n > 1)
         {
             n--;
             int k = Random.Range(0, n + 1);
-            Card value = this.cards[k];
-            this.cards[k] = this.cards[n];
-            this.cards[n] = value;
+            T value = list[k];
+            list[k] = list[n];
+            list[n] = value;
         }
+        return list;
     }
 
-    public int Count
+    public static Stack<T> ToStack<T>(this List<T> list)
     {
-        get
+        var stack = new Stack<T>();
+        foreach (var item in list)
         {
-            return this.cards.Count;
+            stack.Push(item);
         }
+        return stack;
     }
+}
 
-    private void freshDeck()
+public class SabaccDeck : IDeck
+{
+
+    private void InitializeDeck()
     {
-        this.cards = new List<Card>();
-        for (int i = 1; i <= 10; i++)
+        cards.Clear();
+        foreach (SabaccSuit suit in System.Enum.GetValues(typeof(SabaccSuit)))
         {
-            cards.Add(new Card("Triangle", i));
-            cards.Add(new Card("Circle", i));
-            cards.Add(new Card("Square", i));
-            cards.Add(new Card("Triangle", -i));
-            cards.Add(new Card("Circle", -i));
-            cards.Add(new Card("Square", -i));
+            if (suit == SabaccSuit.Zero) continue;
+            for (int value = 1; value <= 10; value++)
+            {
+                cards.Add(new SabaccCard { suit = suit, value = value, material = CardMaterialLoader.LoadMaterial(suit, value) });
+                cards.Add(new SabaccCard { suit = suit, value = -value, material = CardMaterialLoader.LoadMaterial(suit, -value) });
+            }
         }
-        cards.Add(new Card("Zero", 0));
-        cards.Add(new Card("Zero", 0));
-        shuffle();
+        cards.Add(new SabaccCard { suit = SabaccSuit.Zero, value = 0, material = CardMaterialLoader.LoadMaterial(SabaccSuit.Zero, 0) });
+        cards.Add(new SabaccCard { suit = SabaccSuit.Zero, value = 0, material = CardMaterialLoader.LoadMaterial(SabaccSuit.Zero, 0) });
     }
 
-    public void reset()
+
+    public SabaccDeck()
     {
-        freshDeck();
+        cards = new List<ICard>();
+        deck = new Stack<ICard>();
+        InitializeDeck();
+        Shuffle();
     }
-    public Card draw()
+}
+
+public class PazaakDeck : IDeck
+{
+    public PazaakDeck()
     {
-        if (this.cards.Count > 1)
+        cards = new List<ICard>();
+        deck = new Stack<ICard>();
+        InitializeDeck();
+        Shuffle();
+    }
+
+    private void InitializeDeck()
+    {
+        cards.Clear();
+        foreach (PazaakSuit suit in System.Enum.GetValues(typeof(PazaakSuit)))
         {
-            Card card = this.cards[0];
-            this.cards.RemoveAt(0);
-            return card;
+            for (int value = 1; value <= 10; value++)
+            {
+                cards.Add(new PazaakCard { suit = suit, value = value, material = CardMaterialLoader.LoadMaterial(suit, value) });
+                cards.Add(new PazaakCard { suit = suit, value = -value, material = CardMaterialLoader.LoadMaterial(suit, -value) });
+            }
         }
-        return new Card("INVALID", 0);
     }
-    public Deck()
-    {
-        freshDeck();
-    }
-
 }

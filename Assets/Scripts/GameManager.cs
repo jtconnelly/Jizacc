@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
     public bool showdown = false;
     public int Die1, Die2;
     private uint roundCounter = 1;
-    private CardMatTranslate cardGetter = CardMatTranslate.Instance;
+    // private CardMatTranslate cardGetter = CardMatTranslate.Instance;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

@@ -1,21 +1,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Dealer : MonoBehaviour
+public class Dealer
 {
-    private Deck deck;
-    private Stack<Card> discardPile;
+    private IDeck deck;
+    private Stack<ICard> discardPile;
+
+    public Dealer(IDeck deck)
+    {
+        this.deck = deck;
+        discardPile = new Stack<ICard>();
+    }
+
+    public ICard DrawCard()
+    {
+        return deck.Draw();
+    }
+
+    public void DiscardCard(ICard card)
+    {
+        discardPile.Push(card);
+    }
     
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
 }
